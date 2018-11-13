@@ -18,7 +18,7 @@ def _dry_run_submit(*args, **kwargs):
 # api.submit_order =_dry_run_submit
 
 
-def _get_polygon_prices(symbols, end_dt, max_workers=5):
+def _get_polygon_prices(symbols, end_dt, max_workers=15):
     '''Get the map of DataFrame price data from polygon, in parallel.'''
 
     start_dt = end_dt - pd.Timedelta('1200 days')
@@ -74,7 +74,7 @@ def calc_scores(price_map, dayindex=-1):
     return sorted(diffs.items(), key=lambda x: x[1])
 
 
-def get_orders(api, price_map, position_size=100, max_positions=5):
+def get_orders(api, price_map, position_size=100, max_positions=15):
     '''Calculate the scores with the universe to build the optimal
     portfolio as of today, and extract orders to transition from
     current portfolio to the calculated state.
@@ -84,9 +84,9 @@ def get_orders(api, price_map, position_size=100, max_positions=5):
     to_buy = set()
     to_sell = set()
     account = api.get_account()
-    # take the top one twentieth out of ranking,
+    # take the top ten percent out of ranking,
     # excluding stocks too expensive to buy a share
-    for symbol, _ in ranked[:len(ranked) // 20]:
+    for symbol, _ in ranked[:len(ranked) // 10]:
         price = float(price_map[symbol].close.values[-1])
         if price > float(account.cash):
             continue
@@ -133,7 +133,7 @@ def get_orders(api, price_map, position_size=100, max_positions=5):
     return orders
 
 
-def trade(orders, wait=30):
+def trade(orders, wait=60):
     '''This is where we actually submit the orders and wait for them to fill.
     This is an important step since the orders aren't filled atomically,
     which means if your buys come first with littme cash left in the account,
