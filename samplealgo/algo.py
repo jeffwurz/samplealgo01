@@ -18,7 +18,7 @@ def _dry_run_submit(*args, **kwargs):
 # api.submit_order =_dry_run_submit
 
 
-def _get_polygon_prices(symbols, end_dt, max_workers=15):
+def _get_polygon_prices(symbols, end_dt, max_workers=50):
     '''Get the map of DataFrame price data from polygon, in parallel.'''
 
     start_dt = end_dt - pd.Timedelta('1200 days')
@@ -74,7 +74,7 @@ def calc_scores(price_map, dayindex=-1):
     return sorted(diffs.items(), key=lambda x: x[1])
 
 
-def get_orders(api, price_map, position_size=100, max_positions=15):
+def get_orders(api, price_map, position_size=1000, max_positions=50):
     '''Calculate the scores with the universe to build the optimal
     portfolio as of today, and extract orders to transition from
     current portfolio to the calculated state.
